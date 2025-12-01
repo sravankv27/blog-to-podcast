@@ -1,0 +1,9 @@
+django
+google-generativeai
+edge-tts
+beautifulsoup4
+requests
+python-dotenv
+moviepy
+Pillow
+numpy

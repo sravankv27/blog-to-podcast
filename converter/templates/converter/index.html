@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graffiti - AI Podcast Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --section-bg: #151b2b;
+            --sidebar-bg: #0b0f19;
+            --primary: #6366f1;
+            --primary-hover: #818cf8;
+            --accent: #d946ef;
+            --accent-hover: #e879f9;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(148, 163, 184, 0.08);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --glass: rgba(21, 27, 43, 0.7);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 368px 1fr 360px;
+            flex: 1;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid var(--border-color);
+            background: var(--section-bg);
+        }
+
+        .section:last-child {
+            border-right: none;
+        }
+
+        .section-header {
+            padding: 1.25rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(11, 15, 25, 0.3);
+            height: 64px;
+        }
+
+        .section-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Left Section: Sessions & Logs */
+        .left-section {
+            background: var(--sidebar-bg);
+        }
+
+        .brand-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.3;
+        }
+
+        .new-session-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .new-session-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+            filter: brightness(1.1);
+        }
+
+        .session-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 200px;
+        }
+
+        .session-item {
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateX(2px);
+        }
+
+        .session-item.active {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: var(--primary);
+        }
+
+        .session-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: 0.2s;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .icon-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 0.35rem;
+        height: auto;
+        }
+
+        .logs-content {
+            flex: 1;
+            background: #080b14;
+            border-radius: 8px;
+            padding: 0.4rem 0.5rem;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid var(--border-color);
+            line-height: 1.5;
+            margin: 0 1.25rem 1.25rem 1.25rem;
+        }
+
+        /* Middle Section: Output */
+        .middle-section {
+            background: #000;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-container {
+            width: 100%;
+            height: 60%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        video,
+        audio {
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .chat-container {
+            height: 40%;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-bubble {
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            max-width: 85%;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            position: relative;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .host-a {
+            align-self: flex-start;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-bottom-left-radius: 4px;
+        }
+
+        .host-b {
+            align-self: flex-end;
+            background: rgba(217, 70, 239, 0.08);
+            border: 1px solid rgba(217, 70, 239, 0.15);
+            border-bottom-right-radius: 4px;
+        }
+
+        .host-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .host-a .host-label {
+            color: var(--primary);
+        }
+
+        .host-b .host-label {
+            color: var(--accent);
+        }
+
+        /* Right Section: Controls */
+        .right-section {
+            background: var(--section-bg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-left: 0.25rem;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            padding: 0.875rem 1rem;
+            background: rgba(11, 15, 25, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: inherit;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(11, 15, 25, 0.8);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 0.75rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            filter: grayscale(0.5);
+        }
+
+        .status-card {
+            background: rgba(11, 15, 25, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        .status-step {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            gap: 1.5rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.2));
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--section-bg);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(1.1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Left Section -->
+        <div class="section left-section">
+            <div class="section-header">
+                <span class="brand-title">Graffiti - AI Podcast Studio</span>
+            </div>
+            <div class="section-content">
+                <button class="new-session-btn" onclick="createNewSession()">
+                    <span>+</span> New Session
+                </button>
+                <div class="session-list" id="sessionList">
+                    <!-- Sessions go here -->
+                </div>
+                <div class="logs-section">
+                    <div class="section-header">
+                        <span>Session Logs</span>
+                    </div>
+                    <div class="logs-content" id="logsContent">Waiting for logs...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section -->
+        <div class="section middle-section">
+            <div class="section-header">
+                <span>Output</span>
+            </div>
+            <div class="media-container" id="mediaContainer">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🎬</div>
+                    <p>Ready to generate</p>
+                </div>
+                <video controls id="videoPlayer" style="display:none;"></video>
+                <audio controls id="audioPlayer" style="display:none;"></audio>
+            </div>
+            <div class="chat-container" id="chatBox">
+                <!-- Chat bubbles go here -->
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="section right-section">
+            <div class="section-header">
+                <span>Podcast Control Agent</span>
+            </div>
+            <div class="section-content">
+                <form id="convertForm" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label>Session Name</label>
+                        <input type="text" id="sessionName" placeholder="e.g. Tech Talk Ep. 1">
+                    </div>
+                    <div class="form-group">
+                        <label>Blog Post URL</label>
+                        <input type="url" id="blogUrl" placeholder="https://..." required>
+                    </div>
+                    <button type="submit" class="generate-btn" id="submitBtn">
+                        ✨ Generate Podcast
+                    </button>
+                </form>
+
+                <div class="status-card" id="progressContainer" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                        <span style="font-size:0.85rem; font-weight:600;">Session Event Logs</span>
+                        <span id="progressPercent" style="font-size:0.85rem; color:var(--primary);">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="status-step" id="statusText">Initializing...</div>
+                </div>
+
+                <div id="errorBox"
+                    style="display:none; color:var(--danger); background:rgba(239,68,68,0.1); padding:1rem; border-radius:8px; border:1px solid rgba(239,68,68,0.2); font-size:0.9rem;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="renameModal">
+        <div class="modal">
+            <h3>Rename Session</h3>
+            <input type="text" id="renameInput" placeholder="Enter new session name"
+                style="width:100%; margin-bottom:1rem;">
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('renameModal')">Cancel</button>
+                <button class="btn-primary" onclick="confirmRename()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>Delete Session</h3>
+            <p style="color:var(--text-muted); margin-bottom:1.5rem;">Are you sure you want to delete this session? This
+                action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTaskId = null;
+        let pollInterval = null;
+        let sessionToEdit = null;
+        const mediaStates = {};
+        let lastRenderedScript = '';
+
+        function renderScript(scriptText) {
+            if (!scriptText || scriptText === lastRenderedScript) return;
+            lastRenderedScript = scriptText;
+
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = '';
+
+            const lines = scriptText.split('\n');
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) return;
+
+                let speaker = 'Host A';
+                let text = line;
+                let className = 'host-a';
+
+                if (line.startsWith('Host A:') || line.startsWith('Host A (')) {
+                    speaker = 'Host A';
+                    text = line.indexOf(':') > -1 ? line.substring(line.indexOf(':') + 1).trim() : line;
+                    className = 'host-a';
+                } else if (line.startsWith('Host B:') || line.startsWith('Host B (')) {
+                    speaker = 'Host B';
+                    text = line.indexOf(':') > -1 ? line.substring(line.indexOf(':') + 1).trim() : line;
+                    className = 'host-b';
+                }
+
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${className}`;
+
+                const label = document.createElement('div');
+                label.className = 'host-label';
+                label.innerHTML = speaker === 'Host A' ? '🎙️ Host A' : '🎤 Host B';
+
+                const content = document.createElement('div');
+                content.innerText = text;
+
+                bubble.appendChild(label);
+                bubble.appendChild(content);
+                chatBox.appendChild(bubble);
+            });
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // ---------- Media Tracking ----------
+        function setupMediaTracking() {
+            const video = document.getElementById('videoPlayer');
+            const audio = document.getElementById('audioPlayer');
+            video.addEventListener('timeupdate', () => { if (currentTaskId && video.style.display !== 'none') { mediaStates[currentTaskId] = mediaStates[currentTaskId] || {}; mediaStates[currentTaskId].videoTime = video.currentTime; } });
+            audio.addEventListener('timeupdate', () => { if (currentTaskId && audio.style.display !== 'none') { mediaStates[currentTaskId] = mediaStates[currentTaskId] || {}; mediaStates[currentTaskId].audioTime = audio.currentTime; } });
+        }
+        function saveMediaState() {
+            if (!currentTaskId) return;
+            const video = document.getElementById('videoPlayer');
+            const audio = document.getElementById('audioPlayer');
+            mediaStates[currentTaskId] = {
+                videoTime: video.style.display !== 'none' ? video.currentTime : 0,
+                audioTime: audio.style.display !== 'none' ? audio.currentTime : 0,
+                wasPlaying: (!video.paused && video.style.display !== 'none') || (!audio.paused && audio.style.display !== 'none')
+            };
+        }
+        function restoreMediaState() {
+            if (!currentTaskId || !mediaStates[currentTaskId]) return;
+            const state = mediaStates[currentTaskId];
+            const video = document.getElementById('videoPlayer');
+            const audio = document.getElementById('audioPlayer');
+            if (video.style.display !== 'none' && state.videoTime > 0) { video.currentTime = state.videoTime; if (state.wasPlaying) video.play(); }
+            if (audio.style.display !== 'none' && state.audioTime > 0) { audio.currentTime = state.audioTime; if (state.wasPlaying) audio.play(); }
+        }
+        function pauseMedia() {
+            saveMediaState();
+            const video = document.getElementById('videoPlayer');
+            const audio = document.getElementById('audioPlayer');
+            if (video && !video.paused) video.pause();
+            if (audio && !audio.paused) audio.pause();
+        }
+        document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseMedia(); } else { restoreMediaState(); } });
+
+        // ---------- Session Management ----------
+        function getSessions() {
+            try { return JSON.parse(localStorage.getItem('podcast_sessions') || '[]'); }
+            catch (e) { console.error('Error parsing sessions', e); return []; }
+        }
+        function saveSession(task) {
+            const sessions = getSessions();
+            const idx = sessions.findIndex(s => s.id === task.id);
+            let name = task.name;
+            if (!name && currentTaskId === task.id) name = document.getElementById('sessionName').value;
+            if (!name && idx >= 0) name = sessions[idx].name;
+            if (!name) name = task.url || 'Untitled Session';
+            if (idx >= 0) { sessions[idx] = { ...sessions[idx], ...task, name }; }
+            else { sessions.unshift({ ...task, name }); }
+            localStorage.setItem('podcast_sessions', JSON.stringify(sessions));
+            renderSessionList();
+        }
+        function renderSessionList() {
+            const list = document.getElementById('sessionList');
+            list.innerHTML = '';
+            const sessions = getSessions();
+            sessions.forEach(session => {
+                const item = document.createElement('div');
+                item.className = `session-item ${session.id === currentTaskId ? 'active' : ''}`;
+                item.onclick = e => { if (e.target.closest('.icon-btn')) return; loadSession(session.id); };
+
+                const name = document.createElement('div');
+                name.className = 'session-name';
+                name.innerText = session.name || 'Untitled Session';
+                name.title = session.name || 'Untitled Session';
+
+                const actions = document.createElement('div');
+                actions.style.display = 'flex';
+                actions.style.gap = '4px';
+
+                const edit = document.createElement('button');
+                edit.className = 'icon-btn';
+                edit.innerHTML = '✏️';
+                edit.title = 'Rename';
+                edit.onclick = e => openRenameModal(e, session.id);
+
+                const del = document.createElement('button');
+                del.className = 'icon-btn delete';
+                del.innerHTML = '🗑️';
+                del.title = 'Delete';
+                del.onclick = e => openDeleteModal(e, session.id);
+
+                actions.appendChild(edit);
+                actions.appendChild(del);
+                item.appendChild(name);
+                item.appendChild(actions);
+                list.appendChild(item);
+            });
+        }
+        function openRenameModal(e, taskId) { e.stopPropagation(); sessionToEdit = taskId; const sess = getSessions().find(s => s.id === taskId); if (sess) { document.getElementById('renameInput').value = sess.name; document.getElementById('renameModal').style.display = 'flex'; document.getElementById('renameInput').focus(); } }
+        function confirmRename() { if (!sessionToEdit) return; const newName = document.getElementById('renameInput').value.trim(); if (newName) { const sessions = getSessions(); const sess = sessions.find(s => s.id === sessionToEdit); if (sess) { sess.name = newName; localStorage.setItem('podcast_sessions', JSON.stringify(sessions)); if (currentTaskId === sessionToEdit) document.getElementById('sessionName').value = newName; renderSessionList(); } } closeModal('renameModal'); }
+        function openDeleteModal(e, taskId) { e.stopPropagation(); sessionToEdit = taskId; document.getElementById('deleteModal').style.display = 'flex'; }
+        function confirmDelete() {
+            if (!sessionToEdit) return; if (currentTaskId === sessionToEdit) { pauseMedia(); delete mediaStates[sessionToEdit]; createNewSession(); }
+            let sessions = getSessions(); sessions = sessions.filter(s => s.id !== sessionToEdit); localStorage.setItem('podcast_sessions', JSON.stringify(sessions)); renderSessionList(); closeModal('deleteModal');
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; sessionToEdit = null; }
+        window.onclick = e => { if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none'; };
+
+        // ---------- Session Flow ----------
+        function createNewSession() {
+            pauseMedia(); currentTaskId = null; if (pollInterval) clearInterval(pollInterval);
+            lastRenderedScript = '';
+            document.getElementById('sessionName').value = ''; document.getElementById('blogUrl').value = '';
+            document.getElementById('submitBtn').disabled = false; document.getElementById('submitBtn').innerHTML = '✨ Generate Podcast';
+            document.getElementById('progressContainer').style.display = 'none'; document.getElementById('errorBox').style.display = 'none';
+            document.getElementById('logsContent').innerText = 'Waiting for logs...';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('videoPlayer').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'none';
+            document.getElementById('chatBox').innerHTML = '';
+            renderSessionList();
+        }
+        async function loadSession(taskId) {
+            if (currentTaskId === taskId) return;
+            pauseMedia(); currentTaskId = taskId; renderSessionList();
+            lastRenderedScript = '';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerHTML = 'Generating...';
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('errorBox').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('videoPlayer').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('statusText').innerText = 'Initializing...';
+            document.getElementById('logsContent').innerText = 'Initializing...';
+            document.getElementById('chatBox').innerHTML = '';
+
+            try {
+                const resp = await fetch(`/api/status/${taskId}/`);
+                if (!resp.ok) throw new Error('Session not found');
+                const data = await resp.json();
+                updateUIFromData(data);
+                if (data.status === 'PENDING' || data.status === 'PROCESSING') pollStatus(taskId);
+            } catch (err) {
+                console.error('Error loading session', err);
+                const sess = getSessions().find(s => s.id === taskId);
+                if (sess) {
+                    document.getElementById('blogUrl').value = sess.url;
+                    document.getElementById('sessionName').value = sess.name || '';
+                }
+            }
+        }
+        function updateUIFromData(data) {
+            const sess = getSessions().find(s => s.id === currentTaskId);
+            if (sess) {
+                document.getElementById('blogUrl').value = sess.url;
+                document.getElementById('sessionName').value = sess.name || '';
+            }
+            const prog = document.getElementById('progressContainer');
+            const btn = document.getElementById('submitBtn');
+
+            if (data.status === 'COMPLETED') {
+                btn.disabled = false; btn.innerHTML = '✨ Generate Another'; prog.style.display = 'none'; showResult(data);
+            } else if (data.status === 'FAILED') {
+                btn.disabled = false; btn.innerHTML = '✨ Retry'; prog.style.display = 'none'; showError(data.error_message);
+            } else {
+                btn.disabled = true; btn.innerHTML = 'Generating...'; prog.style.display = 'block';
+                document.getElementById('progressFill').style.width = `${data.progress}%`;
+                document.getElementById('progressPercent').innerText = `${data.progress}%`;
+                document.getElementById('statusText').innerText = `> ${data.current_step}`;
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('videoPlayer').style.display = 'none';
+                document.getElementById('audioPlayer').style.display = 'none';
+            }
+            if (data.script) {
+                renderScript(data.script);
+            }
+            if (data.logs) {
+                const logs = document.getElementById('logsContent');
+                if (logs.innerText !== data.logs) {
+                    logs.innerText = data.logs;
+                    logs.scrollTop = logs.scrollHeight;
+                }
+            }
+        }
+        document.getElementById('convertForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const url = document.getElementById('blogUrl').value;
+            const name = document.getElementById('sessionName').value;
+
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerHTML = 'Generating...';
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('errorBox').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('videoPlayer').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('statusText').innerText = 'Initializing...';
+            document.getElementById('logsContent').innerText = 'Initializing...';
+
+            try {
+                const resp = await fetch('/api/start/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ blog_url: url }) });
+                if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || 'Failed to start'); }
+                const data = await resp.json();
+                currentTaskId = data.task_id;
+                saveSession({ id: currentTaskId, url: url, name: name, status: 'PENDING' });
+                pollStatus(currentTaskId);
+            } catch (err) {
+                showError(err.message);
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').innerHTML = '✨ Generate Podcast';
+            }
+        });
+        function pollStatus(taskId) {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(async () => {
+                if (currentTaskId !== taskId) { clearInterval(pollInterval); return; }
+                try {
+                    const resp = await fetch(`/api/status/${taskId}/`);
+                    const data = await resp.json();
+                    updateUIFromData(data);
+                    if (data.status === 'COMPLETED' || data.status === 'FAILED') {
+                        clearInterval(pollInterval);
+                        const sess = getSessions().find(s => s.id === taskId);
+                        saveSession({ id: currentTaskId, url: document.getElementById('blogUrl').value, name: sess ? sess.name : '', status: data.status });
+                    }
+                } catch (err) { console.error(err); }
+            }, 1000);
+        }
+        function showResult(data) {
+            document.getElementById('emptyState').style.display = 'none';
+            const video = document.getElementById('videoPlayer');
+            const audio = document.getElementById('audioPlayer');
+
+            if (data.video_file) {
+                video.src = `/media/${data.video_file}`;
+                video.style.display = 'block';
+                audio.style.display = 'none';
+                video.addEventListener('loadedmetadata', function restore() {
+                    if (currentTaskId && mediaStates[currentTaskId] && mediaStates[currentTaskId].videoTime > 0) {
+                        video.currentTime = mediaStates[currentTaskId].videoTime;
+                        if (mediaStates[currentTaskId].wasPlaying) video.play();
+                    }
+                    video.removeEventListener('loadedmetadata', restore);
+                }, { once: true });
+                video.load();
+            } else {
+                video.style.display = 'none';
+                if (data.audio_file) {
+                    audio.src = `/media/${data.audio_file}`;
+                    audio.style.display = 'block';
+                    audio.addEventListener('loadedmetadata', function restore() {
+                        if (currentTaskId && mediaStates[currentTaskId] && mediaStates[currentTaskId].audioTime > 0) {
+                            audio.currentTime = mediaStates[currentTaskId].audioTime;
+                            if (mediaStates[currentTaskId].wasPlaying) audio.play();
+                        }
+                        audio.removeEventListener('loadedmetadata', restore);
+                    }, { once: true });
+                    audio.load();
+                }
+            }
+            if (data.script) {
+                renderScript(data.script);
+            }
+        }
+        function showError(msg) { const box = document.getElementById('errorBox'); box.style.display = 'block'; box.innerText = msg; }
+
+        // Init
+        setupMediaTracking();
+        renderSessionList();
+    </script>
+</body>
+
+</html>
