@@ -66,4 +66,5 @@ The system uses 4 AI agents:
 
 ## License
 
-MIT
+CC-BY-4.0 license
+
